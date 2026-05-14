@@ -1,0 +1,376 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FleetManager | Bus & PKW</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <style>
+        .bg-corp-blue { background-color: #1e3a8a; }
+        .time-badge-green { @apply bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded font-bold text-[10px]; }
+        .time-badge-blue { @apply bg-blue-100 text-blue-800 border border-blue-200 px-2 py-0.5 rounded font-bold text-[10px]; }
+        
+        @media (max-width: 640px) {
+            .responsive-table thead { display: none; }
+            .responsive-table tr { display: block; margin-bottom: 1rem; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 0.5rem; background: white; }
+            .responsive-table td { display: flex; justify-content: space-between; padding: 0.25rem 0.5rem; border: none; }
+            .responsive-table td::before { content: attr(data-label); font-weight: bold; color: #64748b; font-size: 0.7rem; text-transform: uppercase; }
+        }
+
+        .tab-active { @apply border-b-4 border-white font-black opacity-100; }
+        .tab-inactive { @apply opacity-60 hover:opacity-100 transition; }
+        
+        .nav-icon { font-size: 1.4rem; margin-right: 0.5rem; vertical-align: middle; }
+        .icon-bus-white { color: #ffffff; }
+        .icon-pkw-yellow { color: #facc15; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-900 text-xs md:text-sm">
+
+    <div id="login-screen" class="fixed inset-0 bg-corp-blue flex items-center justify-center z-[100] p-4">
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-md border-t-8 border-blue-600">
+            <div class="text-center mb-6">
+                <i class="fas fa-key text-3xl text-corp-blue mb-2"></i>
+                <h2 class="text-xl font-bold">System-Login</h2>
+                <p class="text-[9px] text-slate-400 uppercase tracking-widest">Fuhrpark-Management</p>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="login-user" placeholder="Benutzername" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-600 text-base">
+                <input type="password" id="login-pass" placeholder="Passwort" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-600 text-base">
+                <div class="flex items-center gap-2 px-1">
+                    <input type="checkbox" id="remember-me" class="w-4 h-4 cursor-pointer">
+                    <label for="remember-me" class="text-[10px] text-slate-500 uppercase font-bold tracking-wider cursor-pointer">Passwort speichern?</label>
+                </div>
+                <button onclick="handleLogin()" class="w-full bg-blue-700 text-white p-3 rounded-xl font-bold hover:bg-blue-800 transition uppercase tracking-widest text-sm">Einloggen</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-content" class="hidden min-h-screen flex flex-col">
+        <header class="bg-corp-blue text-white shadow-md sticky top-0 z-50">
+            <div class="max-w-6xl mx-auto py-1.5 px-4 flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <h1 class="font-black tracking-tighter uppercase text-sm hidden sm:block">Fleet<span class="text-blue-300">Manager</span></h1>
+                    <nav class="flex gap-6 uppercase text-[10px] tracking-widest">
+                        <button onclick="switchTab('bus')" id="tab-link-bus" class="tab-active py-2 flex items-center">
+                            <i class="fas fa-bus nav-icon icon-bus-white"></i> Bus
+                        </button>
+                        <button onclick="switchTab('pkw')" id="tab-link-pkw" class="tab-inactive py-2 flex items-center">
+                            <i class="fas fa-car-side nav-icon icon-pkw-yellow"></i> PKW
+                        </button>
+                    </nav>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div id="user-display" class="text-[9px] font-bold bg-blue-800 px-2 py-0.5 rounded uppercase hidden xs:block"></div>
+                    <button onclick="logout()" class="bg-red-600/20 hover:bg-red-600 px-3 py-1 rounded transition text-[10px] font-bold uppercase flex items-center gap-2">
+                        <span>Abmelden</span> <i class="fas fa-power-off"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 p-3 md:p-6 max-w-6xl mx-auto w-full space-y-6">
+            
+            <div id="view-bus" class="space-y-6">
+                <section class="bg-blue-50/50 p-4 md:p-5 rounded-xl border border-blue-100 shadow-sm">
+                    <h2 class="text-[10px] font-black mb-4 uppercase tracking-[0.2em] text-blue-600"><i class="fas fa-bus mr-2 icon-bus-white"></i>Bus reservieren</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[9px] font-bold text-blue-400 uppercase">Datum</label>
+                            <input type="date" id="bus-date" class="p-2.5 border border-blue-200 rounded-lg outline-none w-full bg-white text-sm">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[9px] font-bold text-blue-400 uppercase">Zeitraum</label>
+                            <div class="flex items-center gap-1">
+                                <input type="time" id="bus-start" class="p-2 border border-blue-200 rounded-lg w-full bg-white text-sm">
+                                <input type="time" id="bus-end" class="p-2 border border-blue-200 rounded-lg w-full bg-white text-sm">
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1 lg:col-span-3">
+                            <label class="text-[9px] font-bold text-blue-400 uppercase">Zweck</label>
+                            <input type="text" id="bus-reason" placeholder="Grund der Fahrt" class="p-2.5 border border-blue-200 rounded-lg outline-none w-full bg-white text-sm">
+                        </div>
+                        <button onclick="saveBooking('bus')" class="bg-blue-600 text-white py-2.5 rounded-lg font-bold hover:bg-blue-700 transition text-[10px] uppercase tracking-widest shadow-md">Buchen</button>
+                    </div>
+                </section>
+                
+                <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="bg-emerald-600 px-4 py-2 text-white text-[10px] font-black uppercase">Aktuelle Bus-Termine</div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left responsive-table">
+                            <thead class="bg-slate-50 border-b text-[10px] uppercase text-slate-500">
+                                <tr>
+                                    <th class="p-3">Datum</th><th class="p-3">Zeit</th><th class="p-3">Person</th><th class="p-3">Zweck</th><th class="p-3"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="bus-list" class="divide-y"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+
+            <div id="view-pkw" class="hidden space-y-6">
+                <section class="bg-orange-50 p-4 md:p-5 rounded-xl border border-orange-200 shadow-sm">
+                    <h2 class="text-[10px] font-black mb-4 uppercase tracking-[0.2em] text-orange-600"><i class="fas fa-car mr-2 icon-pkw-yellow"></i>PKW buchen</h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[9px] font-bold text-orange-400 uppercase">Fahrzeug</label>
+                            <select id="pkw-select" class="p-2.5 border border-orange-200 rounded-lg outline-none w-full bg-white font-bold text-sm"></select>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[9px] font-bold text-orange-400 uppercase">Datum</label>
+                            <input type="date" id="pkw-date" class="p-2.5 border border-orange-200 rounded-lg outline-none w-full bg-white text-sm">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[9px] font-bold text-orange-400 uppercase">Zeitraum</label>
+                            <div class="flex items-center gap-1">
+                                <input type="time" id="pkw-start" class="p-2 border border-orange-200 rounded-lg w-full bg-white text-sm">
+                                <input type="time" id="pkw-end" class="p-2 border border-orange-200 rounded-lg w-full bg-white text-sm">
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[9px] font-bold text-orange-400 uppercase">Fahrer</label>
+                            <select id="pkw-for-user" class="p-2.5 border border-orange-200 rounded-lg outline-none w-full bg-white text-sm"></select>
+                        </div>
+                        <button onclick="saveBooking('pkw')" class="bg-orange-600 text-white py-2.5 rounded-lg font-bold hover:bg-orange-700 lg:col-span-2 transition text-[10px] uppercase tracking-widest shadow-md">Reservieren</button>
+                    </div>
+                </section>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2">
+                        <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                            <div class="bg-emerald-600 px-4 py-2 text-white text-[10px] font-black uppercase">Aktuelle PKW-Termine</div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left responsive-table">
+                                    <thead class="bg-slate-50 border-b text-[10px] uppercase text-slate-500">
+                                        <tr>
+                                            <th class="p-3">Fahrzeug</th><th class="p-3">Datum</th><th class="p-3">Zeit</th><th class="p-3">Person</th><th class="p-3"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pkw-list" class="divide-y"></tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </div>
+                    
+                    <div id="pkw-admin-card" class="hidden">
+                        <section class="bg-white p-4 rounded-xl border border-red-100 shadow-sm">
+                            <h2 class="text-[10px] font-black text-red-600 uppercase mb-3">PKW Fuhrpark</h2>
+                            <div class="space-y-2">
+                                <input type="text" id="pkw-model" placeholder="Modell" class="w-full p-2 text-sm border rounded">
+                                <input type="text" id="pkw-plate" placeholder="Kennzeichen" class="w-full p-2 text-sm border rounded">
+                                <button onclick="addVehicle()" class="w-full bg-red-600 text-white py-2 rounded text-[10px] font-bold uppercase">Hinzufügen</button>
+                            </div>
+                            <div id="vehicle-manage-list" class="mt-4 space-y-2"></div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+
+            <section id="admin-section" class="hidden bg-white p-4 md:p-6 rounded-xl border border-slate-200 shadow-sm border-t-4 border-t-red-600">
+                <h2 class="text-[10px] font-black text-slate-600 uppercase mb-4 tracking-widest">Benutzerverwaltung</h2>
+                <div class="flex flex-col sm:flex-row gap-2 mb-6">
+                    <input type="hidden" id="edit-user-id">
+                    <input type="text" id="new-username" placeholder="Name" class="p-2 text-sm border rounded flex-1">
+                    <input type="text" id="new-password" placeholder="Passwort" class="p-2 text-sm border rounded flex-1">
+                    <select id="new-role" class="p-2 text-sm border rounded bg-white">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                    <button id="user-btn" onclick="addUser()" class="bg-slate-800 text-white px-6 py-2 rounded text-[10px] font-bold uppercase">Anlegen</button>
+                    <button id="cancel-edit-btn" onclick="resetUserForm()" class="hidden bg-slate-200 text-slate-600 px-4 py-2 rounded text-[10px] font-bold uppercase">Abbrechen</button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="user-grid"></div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQOrhZbOtPTRf9zA1KAZ4gRNwXlVlpBp8",
+            authDomain: "bus-planer.firebaseapp.com",
+            databaseURL: "https://bus-planer-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "bus-planer",
+            storageBucket: "bus-planer.firebasestorage.app",
+            messagingSenderId: "995350119755",
+            appId: "1:995350119755:web:bb8756f98654dc5fc854ce"
+			measurementId: "G-SPW0G3EPL7"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let users = [], busBookings = [], pkwBookings = [], vehicles = [], currentUser = null;
+        const protectedNames = ['admin', 'Admin'];
+
+        window.onload = function() {
+            loadData();
+            const savedUser = localStorage.getItem('fleet_user');
+            const savedPass = localStorage.getItem('fleet_pass');
+            if(savedUser && savedPass) {
+                document.getElementById('login-user').value = savedUser;
+                document.getElementById('login-pass').value = savedPass;
+                document.getElementById('remember-me').checked = true;
+            }
+        };
+
+        function handleLogin() {
+            const u = document.getElementById('login-user').value.trim();
+            const p = document.getElementById('login-pass').value.trim();
+            const remember = document.getElementById('remember-me').checked;
+            const found = users.find(x => x.name === u && x.pass === p);
+            if(found) {
+                if(remember) { localStorage.setItem('fleet_user', u); localStorage.setItem('fleet_pass', p); }
+                else { localStorage.removeItem('fleet_user'); localStorage.removeItem('fleet_pass'); }
+                currentUser = found;
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-content').classList.remove('hidden');
+                document.getElementById('user-display').innerText = currentUser.name;
+                renderAll();
+            } else alert("Zugangsdaten nicht korrekt!");
+        }
+
+        function logout() { currentUser = null; document.getElementById('login-screen').classList.remove('hidden'); document.getElementById('app-content').classList.add('hidden'); }
+
+        function loadData() {
+            db.ref('/').on('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                users = Object.values(data.users || {});
+                busBookings = Object.values(data.busBookings || {});
+                pkwBookings = Object.values(data.pkwBookings || {});
+                vehicles = Object.values(data.vehicles || {});
+                if(currentUser) renderAll();
+            });
+        }
+
+        function switchTab(tab) {
+            document.getElementById('view-bus').classList.toggle('hidden', tab !== 'bus');
+            document.getElementById('view-pkw').classList.toggle('hidden', tab !== 'pkw');
+            document.getElementById('tab-link-bus').className = (tab === 'bus' ? 'tab-active' : 'tab-inactive') + ' py-2 flex items-center';
+            document.getElementById('tab-link-pkw').className = (tab === 'pkw' ? 'tab-active' : 'tab-inactive') + ' py-2 flex items-center';
+        }
+
+        function renderAll() {
+            busBookings.sort((a,b) => new Date(a.date) - new Date(b.date));
+            document.getElementById('bus-list').innerHTML = busBookings.map(b => `
+                <tr>
+                    <td data-label="Datum" class="p-3 font-bold">${new Date(b.date).toLocaleDateString('de-DE')}</td>
+                    <td data-label="Zeit" class="p-3"><span class="time-badge-green">${b.start} - ${b.end}</span></td>
+                    <td data-label="Person" class="p-3 font-bold text-blue-600 uppercase text-[9px]">${b.person}</td>
+                    <td data-label="Zweck" class="p-3 text-slate-500">${b.reason}</td>
+                    <td class="p-3 text-right">
+                        ${(currentUser.role === 'admin' || b.person === currentUser.name) ? `<button onclick="deleteEntry('busBookings', ${b.id})" class="text-red-400 hover:text-red-600 p-2"><i class="fas fa-trash"></i></button>` : ''}
+                    </td>
+                </tr>`).join('');
+
+            pkwBookings.sort((a,b) => new Date(a.date) - new Date(b.date));
+            document.getElementById('pkw-list').innerHTML = pkwBookings.map(b => `
+                <tr>
+                    <td data-label="Fahrzeug" class="p-3"><div class="font-black text-blue-900">${b.vehicle}</div><div class="text-[9px] text-slate-400">${b.plate}</div></td>
+                    <td data-label="Datum" class="p-3 font-bold">${new Date(b.date).toLocaleDateString('de-DE')}</td>
+                    <td data-label="Zeit" class="p-3"><span class="time-badge-blue">${b.start} - ${b.end}</span></td>
+                    <td data-label="Person" class="p-3 font-bold uppercase text-[9px] text-slate-600">${b.person}</td>
+                    <td class="p-3 text-right">
+                        ${(currentUser.role === 'admin' || b.person === currentUser.name) ? `<button onclick="deleteEntry('pkwBookings', ${b.id})" class="text-red-400 hover:text-red-600 p-2"><i class="fas fa-trash"></i></button>` : ''}
+                    </td>
+                </tr>`).join('');
+
+            document.getElementById('pkw-select').innerHTML = vehicles.map(v => `<option value="${v.id}">${v.model} (${v.plate})</option>`).join('');
+            document.getElementById('pkw-for-user').innerHTML = users.map(u => `<option value="${u.name}" ${u.name === currentUser.name ? 'selected' : ''}>${u.name}</option>`).join('');
+
+            if(currentUser.role === 'admin') {
+                document.getElementById('admin-section').classList.remove('hidden');
+                document.getElementById('pkw-admin-card').classList.remove('hidden');
+                renderUsers();
+                renderVehicleManage();
+            }
+        }
+
+        function saveBooking(type) {
+            const date = document.getElementById(`${type}-date`).value, start = document.getElementById(`${type}-start`).value, end = document.getElementById(`${type}-end`).value;
+            if(!date || !start || !end) return alert("Fehlende Daten!");
+            if(start >= end) return alert("Endzeit ungültig!");
+            let bookingData = { id: Date.now(), date, start, end };
+            let list = (type === 'bus') ? busBookings : pkwBookings;
+            if(type === 'bus') {
+                bookingData.reason = document.getElementById('bus-reason').value; bookingData.person = currentUser.name;
+                const conflict = list.find(b => b.date === date && (start < b.end && end > b.start));
+                if(conflict) return alert(`Überschneidung bei Bus mit ${conflict.person}`);
+            } else {
+                const vId = document.getElementById('pkw-select').value, v = vehicles.find(x => x.id == vId);
+                bookingData.vehicle = v.model; bookingData.plate = v.plate; bookingData.vehicleId = v.id; bookingData.person = document.getElementById('pkw-for-user').value;
+                const conflict = list.find(b => b.vehicleId == vId && b.date === date && (start < b.end && end > b.start));
+                if(conflict) return alert(`Belegt durch ${conflict.person}`);
+            }
+            db.ref(`${type}Bookings/${bookingData.id}`).set(bookingData).then(() => alert("Gebucht!"));
+        }
+
+        function addVehicle() {
+            const m = document.getElementById('pkw-model').value, p = document.getElementById('pkw-plate').value;
+            if(!m || !p) return;
+            db.ref('vehicles/' + Date.now()).set({ id: Date.now(), model: m, plate: p });
+            document.getElementById('pkw-model').value = ""; document.getElementById('pkw-plate').value = "";
+        }
+
+        function renderVehicleManage() {
+            document.getElementById('vehicle-manage-list').innerHTML = vehicles.map(v => `
+                <div class="flex justify-between items-center text-[10px] bg-slate-50 p-2 border rounded">
+                    <span><b>${v.model}</b> (${v.plate})</span>
+                    <button onclick="deleteEntry('vehicles', ${v.id})" class="text-red-500 p-1"><i class="fas fa-times"></i></button>
+                </div>`).join('');
+        }
+
+        function renderUsers() {
+            document.getElementById('user-grid').innerHTML = users.map(u => `
+                <div class="bg-white border p-3 rounded-lg flex justify-between items-center shadow-sm">
+                    <div>
+                        <p class="font-black text-slate-800 text-[10px] uppercase">${u.name}</p>
+                        <p class="text-[8px] text-blue-600 font-bold">${u.role.toUpperCase()}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        ${protectedNames.includes(u.name) ? '<i class="fas fa-lock text-slate-300"></i>' : `
+                            <button onclick="editUser(${u.id})" class="text-slate-400 hover:text-blue-600 p-1"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteUser(${u.id})" class="text-slate-200 hover:text-red-500 p-1"><i class="fas fa-trash-alt"></i></button>
+                        `}
+                    </div>
+                </div>`).join('');
+        }
+
+        function addUser() {
+            const n = document.getElementById('new-username').value, p = document.getElementById('new-password').value, r = document.getElementById('new-role').value, id = document.getElementById('edit-user-id').value;
+            if(!n || !p) return alert("Name und Passwort nötig!");
+            const targetId = id ? id : Date.now();
+            db.ref('users/' + targetId).set({ id: targetId, name: n, pass: p, role: r }).then(() => resetUserForm());
+        }
+
+        function editUser(id) {
+            const u = users.find(x => x.id == id);
+            document.getElementById('edit-user-id').value = u.id;
+            document.getElementById('new-username').value = u.name;
+            document.getElementById('new-password').value = u.pass;
+            document.getElementById('new-role').value = u.role;
+            document.getElementById('user-btn').innerText = "Speichern";
+            document.getElementById('cancel-edit-btn').classList.remove('hidden');
+        }
+
+        function resetUserForm() {
+            document.getElementById('edit-user-id').value = "";
+            document.getElementById('new-username').value = "";
+            document.getElementById('new-password').value = "";
+            document.getElementById('new-role').value = "user";
+            document.getElementById('user-btn').innerText = "Anlegen";
+            document.getElementById('cancel-edit-btn').classList.add('hidden');
+        }
+
+        function deleteUser(id) {
+            const u = users.find(x => x.id == id);
+            if(!protectedNames.includes(u.name) && confirm(`Benutzer ${u.name} wirklich löschen?`)) db.ref('users/' + id).remove();
+        }
+
+        function deleteEntry(path, id) { if(confirm("Löschen?")) db.ref(`${path}/${id}`).remove(); }
+    </script>
+</body>
+</html>
