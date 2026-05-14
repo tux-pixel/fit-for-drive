@@ -90,7 +90,11 @@
                                 <input type="time" id="bus-end" class="p-2 border border-blue-200 rounded-lg w-full bg-white text-sm">
                             </div>
                         </div>
-                        <div class="flex flex-col gap-1 lg:col-span-3">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[9px] font-bold text-blue-400 uppercase">Fahrer (Person)</label>
+                            <select id="bus-for-user" class="p-2.5 border border-blue-200 rounded-lg outline-none w-full bg-white text-sm font-bold"></select>
+                        </div>
+                        <div class="flex flex-col gap-1 lg:col-span-2">
                             <label class="text-[9px] font-bold text-blue-400 uppercase">Zweck</label>
                             <input type="text" id="bus-reason" placeholder="Grund der Fahrt" class="p-2.5 border border-blue-200 rounded-lg outline-none w-full bg-white text-sm">
                         </div>
@@ -133,8 +137,8 @@
                             </div>
                         </div>
                         <div class="flex flex-col gap-1">
-                            <label class="text-[9px] font-bold text-orange-400 uppercase">Fahrer</label>
-                            <select id="pkw-for-user" class="p-2.5 border border-orange-200 rounded-lg outline-none w-full bg-white text-sm"></select>
+                            <label class="text-[9px] font-bold text-orange-400 uppercase">Fahrer (Person)</label>
+                            <select id="pkw-for-user" class="p-2.5 border border-orange-200 rounded-lg outline-none w-full bg-white text-sm font-bold"></select>
                         </div>
                         <button onclick="saveBooking('pkw')" class="bg-orange-600 text-white py-2.5 rounded-lg font-bold hover:bg-orange-700 lg:col-span-2 transition text-[10px] uppercase tracking-widest shadow-md">Reservieren</button>
                     </div>
@@ -197,8 +201,8 @@
             projectId: "fit-for-drive-995a6",
             storageBucket: "fit-for-drive-995a6.firebasestorage.app",
             messagingSenderId: "495405318322",
-            appId: "1:495405318322:web:ef1f1b5cd8dbf3112d49ab"
-			measurementId: "G-BNF6V2JLW7"
+            appId: "1:495405318322:web:ef1f1b5cd8dbf3112d49ab",
+            measurementId: "G-BNF6V2JLW7"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -254,8 +258,10 @@
         }
 
         function renderAll() {
-            busBookings.sort((a,b) => new Date(a.date) - new Date(b.date));
-            document.getElementById('bus-list').innerHTML = busBookings.map(b => `
+            // Nur Buchungen mit gültiger ID und Datum anzeigen, um Fehler in der Liste zu vermeiden
+            const validBus = busBookings.filter(b => b.id && b.date);
+            validBus.sort((a,b) => new Date(a.date) - new Date(b.date));
+            document.getElementById('bus-list').innerHTML = validBus.map(b => `
                 <tr>
                     <td data-label="Datum" class="p-3 font-bold">${new Date(b.date).toLocaleDateString('de-DE')}</td>
                     <td data-label="Zeit" class="p-3"><span class="time-badge-green">${b.start} - ${b.end}</span></td>
@@ -266,8 +272,9 @@
                     </td>
                 </tr>`).join('');
 
-            pkwBookings.sort((a,b) => new Date(a.date) - new Date(b.date));
-            document.getElementById('pkw-list').innerHTML = pkwBookings.map(b => `
+            const validPkw = pkwBookings.filter(b => b.id && b.date);
+            validPkw.sort((a,b) => new Date(a.date) - new Date(b.date));
+            document.getElementById('pkw-list').innerHTML = validPkw.map(b => `
                 <tr>
                     <td data-label="Fahrzeug" class="p-3"><div class="font-black text-blue-900">${b.vehicle}</div><div class="text-[9px] text-slate-400">${b.plate}</div></td>
                     <td data-label="Datum" class="p-3 font-bold">${new Date(b.date).toLocaleDateString('de-DE')}</td>
@@ -279,7 +286,10 @@
                 </tr>`).join('');
 
             document.getElementById('pkw-select').innerHTML = vehicles.map(v => `<option value="${v.id}">${v.model} (${v.plate})</option>`).join('');
-            document.getElementById('pkw-for-user').innerHTML = users.map(u => `<option value="${u.name}" ${u.name === currentUser.name ? 'selected' : ''}>${u.name}</option>`).join('');
+            
+            const userOptions = users.map(u => `<option value="${u.name}" ${u.name === currentUser.name ? 'selected' : ''}>${u.name}</option>`).join('');
+            document.getElementById('pkw-for-user').innerHTML = userOptions;
+            document.getElementById('bus-for-user').innerHTML = userOptions;
 
             if(currentUser.role === 'admin') {
                 document.getElementById('admin-section').classList.remove('hidden');
@@ -290,22 +300,49 @@
         }
 
         function saveBooking(type) {
-            const date = document.getElementById(`${type}-date`).value, start = document.getElementById(`${type}-start`).value, end = document.getElementById(`${type}-end`).value;
-            if(!date || !start || !end) return alert("Fehlende Daten!");
-            if(start >= end) return alert("Endzeit ungültig!");
-            let bookingData = { id: Date.now(), date, start, end };
+            const date = document.getElementById(`${type}-date`).value;
+            const start = document.getElementById(`${type}-start`).value;
+            const end = document.getElementById(`${type}-end`).value;
+            const person = document.getElementById(`${type}-for-user`).value;
+
+            // ABSICHERUNG: Prüfen ob alle Pflichtfelder ausgefüllt sind
+            if(!date || !start || !end || !person) {
+                return alert("Bitte füllen Sie alle Felder aus (Datum, Zeitraum und Fahrer)!");
+            }
+            if(start >= end) return alert("Die Endzeit muss nach der Startzeit liegen!");
+
+            let bookingData = { 
+                id: Date.now(), 
+                date: date, 
+                start: start, 
+                end: end,
+                person: person 
+            };
+            
             let list = (type === 'bus') ? busBookings : pkwBookings;
+            
             if(type === 'bus') {
-                bookingData.reason = document.getElementById('bus-reason').value; bookingData.person = currentUser.name;
+                bookingData.reason = document.getElementById('bus-reason').value || "Kein Zweck angegeben"; 
                 const conflict = list.find(b => b.date === date && (start < b.end && end > b.start));
                 if(conflict) return alert(`Überschneidung bei Bus mit ${conflict.person}`);
             } else {
-                const vId = document.getElementById('pkw-select').value, v = vehicles.find(x => x.id == vId);
-                bookingData.vehicle = v.model; bookingData.plate = v.plate; bookingData.vehicleId = v.id; bookingData.person = document.getElementById('pkw-for-user').value;
+                const vId = document.getElementById('pkw-select').value;
+                const v = vehicles.find(x => x.id == vId);
+                
+                // ABSICHERUNG: Prüfen ob ein Fahrzeug existiert/ausgewählt wurde
+                if(!v) return alert("Fehler: Kein Fahrzeug ausgewählt. Bitte legen Sie erst Fahrzeuge im Admin-Bereich an.");
+                
+                bookingData.vehicle = v.model; 
+                bookingData.plate = v.plate; 
+                bookingData.vehicleId = v.id; 
                 const conflict = list.find(b => b.vehicleId == vId && b.date === date && (start < b.end && end > b.start));
-                if(conflict) return alert(`Belegt durch ${conflict.person}`);
+                if(conflict) return alert(`Dieses Fahrzeug ist bereits belegt durch ${conflict.person}`);
             }
-            db.ref(`${type}Bookings/${bookingData.id}`).set(bookingData).then(() => alert("Gebucht!"));
+
+            // Erst wenn alles validiert ist, wird gespeichert
+            db.ref(`${type}Bookings/${bookingData.id}`).set(bookingData)
+              .then(() => alert("Erfolgreich gebucht!"))
+              .catch(err => alert("Speicherfehler: " + err.message));
         }
 
         function addVehicle() {
@@ -370,7 +407,11 @@
             if(!protectedNames.includes(u.name) && confirm(`Benutzer ${u.name} wirklich löschen?`)) db.ref('users/' + id).remove();
         }
 
-        function deleteEntry(path, id) { if(confirm("Löschen?")) db.ref(`${path}/${id}`).remove(); }
+        function deleteEntry(path, id) { 
+            // Falls id undefined ist, kann der Pfad nicht gelöscht werden -> Fehlermeldung
+            if(!id) return alert("Dieser Eintrag hat keine gültige ID und kann nur direkt in der Firebase Console gelöscht werden.");
+            if(confirm("Eintrag wirklich löschen?")) db.ref(`${path}/${id}`).remove(); 
+        }
     </script>
 </body>
 </html>
