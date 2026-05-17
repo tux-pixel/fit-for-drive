@@ -297,7 +297,12 @@
             } else alert("Zugangsdaten nicht korrekt!");
         }
 
-        function logout() { currentUser = null; document.getElementById('login-screen').classList.remove('hidden'); document.getElementById('app-content').classList.add('hidden'); }
+        function logout() { 
+            alert("Du wirst abgemeldet");
+            currentUser = null; 
+            document.getElementById('login-screen').classList.remove('hidden'); 
+            document.getElementById('app-content').classList.add('hidden'); 
+        }
 
         function loadData() {
             db.ref('/').on('value', (snapshot) => {
