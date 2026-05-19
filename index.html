@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -61,7 +60,7 @@
                     <input type="checkbox" id="remember-me" class="w-4 h-4 cursor-pointer">
                     <label for="remember-me" class="text-[10px] text-slate-500 uppercase font-bold tracking-wider cursor-pointer">Passwort speichern?</label>
                 </div>
-                <button onclick="handleLogin()" class="w-full bg-blue-700 text-white p-3 rounded-xl font-bold hover:bg-blue-800 transition uppercase tracking-widest text-sm">Einloggen</button>
+                <button id="btn-login-submit" onclick="handleLogin()" class="w-full bg-blue-700 disabled:bg-blue-400 text-white p-3 rounded-xl font-bold hover:bg-blue-800 transition uppercase tracking-widest text-sm" disabled>Lade Daten...</button>
             </div>
         </div>
     </div>
@@ -100,7 +99,6 @@
                             <label class="text-[9px] font-bold text-blue-400 uppercase">Bus / Objekt</label>
                             <select id="bus-select" class="p-2.5 border border-blue-200 rounded-lg outline-none w-full bg-white font-bold text-sm">
                                 <option value="Bus mit Anhänger">Bus mit Anhänger</option>
-								<option value="Bus">Bus</option>
                                 <option value="Anhänger">Anhänger</option>
                             </select>
                         </div>
@@ -298,12 +296,7 @@
             } else alert("Zugangsdaten nicht korrekt!");
         }
 
-        function logout() { 
-            alert("Du wirst abgemeldet");
-            currentUser = null; 
-            document.getElementById('login-screen').classList.remove('hidden'); 
-            document.getElementById('app-content').classList.add('hidden'); 
-        }
+        function logout() { currentUser = null; document.getElementById('login-screen').classList.remove('hidden'); document.getElementById('app-content').classList.add('hidden'); }
 
         function loadData() {
             db.ref('/').on('value', (snapshot) => {
@@ -313,6 +306,14 @@
                 pkwBookings = Object.values(data.pkwBookings || {});
                 vehicles = Object.values(data.vehicles || {});
                 archive = Object.values(data.archive || {});
+                
+                // --- GEÄNDERT: Schaltet den Login-Button frei, sobald Firebase-Daten vollständig geladen sind ---
+                const loginBtn = document.getElementById('btn-login-submit');
+                if (loginBtn) {
+                    loginBtn.disabled = false;
+                    loginBtn.innerText = "Einloggen";
+                }
+
                 if(currentUser) renderAll();
             });
         }
