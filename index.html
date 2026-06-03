@@ -55,14 +55,7 @@
             </div>
             <div class="space-y-4">
                 <input type="text" id="login-user" placeholder="Benutzername" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-600 text-base">
-                
-                <div class="relative w-full">
-                    <input type="password" id="login-pass" placeholder="Passwort" class="w-full p-3 pr-10 border rounded-xl outline-none focus:ring-2 focus:ring-blue-600 text-base">
-                    <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none">
-                        <i id="password-toggle-icon" class="fas fa-eye text-base"></i>
-                    </button>
-                </div>
-
+                <input type="password" id="login-pass" placeholder="Passwort" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-600 text-base">
                 <div class="flex items-center gap-2 px-1">
                     <input type="checkbox" id="remember-me" class="w-4 h-4 cursor-pointer">
                     <label for="remember-me" class="text-[10px] text-slate-500 uppercase font-bold tracking-wider cursor-pointer">Passwort speichern?</label>
@@ -101,7 +94,7 @@
                 <section class="bg-blue-50/50 p-4 md:p-5 rounded-xl border border-blue-100 shadow-sm">
                     <h2 class="text-[10px] font-black mb-4 uppercase tracking-[0.2em] text-blue-600"><i class="fas fa-bus mr-2 icon-bus-white"></i><span id="bus-form-title">Bus reservieren</span></h2>
                     <input type="hidden" id="edit-bus-id">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3 items-end">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
                         <div class="flex flex-col gap-1">
                             <label class="text-[9px] font-bold text-blue-400 uppercase">Bus / Objekt</label>
                             <select id="bus-select" class="p-2.5 border border-blue-200 rounded-lg outline-none w-full bg-white font-bold text-sm">
@@ -116,16 +109,8 @@
                         <div class="flex flex-col gap-1">
                             <label class="text-[9px] font-bold text-blue-400 uppercase">Zeitraum</label>
                             <div class="flex items-center gap-1">
-                                <input type="time" id="bus-start" onchange="calculateDuration('bus')" class="p-2 border border-blue-200 rounded-lg w-full bg-white text-sm">
-                                <input type="time" id="bus-end" onchange="calculateDuration('bus')" class="p-2 border border-blue-200 rounded-lg w-full bg-white text-sm">
-                            </div>
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <label class="text-[9px] font-bold text-blue-400 uppercase">Dauer (Minuten)</label>
-                            <div class="flex items-center border border-blue-200 rounded-lg bg-white overflow-hidden">
-                                <input type="number" id="bus-duration" value="90" onchange="calculateEndTime('bus')" class="p-2 w-full text-sm outline-none font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-                                <button onclick="adjustDuration('bus', 15)" class="px-3 py-2 bg-slate-50 border-l hover:bg-slate-100 font-bold text-slate-600">+</button>
-                                <button onclick="adjustDuration('bus', -15)" class="px-3 py-2 bg-slate-50 border-l hover:bg-slate-100 font-bold text-slate-600">-</button>
+                                <input type="time" id="bus-start" class="p-2 border border-blue-200 rounded-lg w-full bg-white text-sm">
+                                <input type="time" id="bus-end" class="p-2 border border-blue-200 rounded-lg w-full bg-white text-sm">
                             </div>
                         </div>
                         <div class="flex flex-col gap-1">
@@ -136,7 +121,7 @@
                             <label class="text-[9px] font-bold text-blue-400 uppercase">Zweck</label>
                             <input type="text" id="bus-reason" placeholder="BE Prüfung / Ausbildung" class="p-2.5 border border-blue-200 rounded-lg outline-none w-full bg-white text-sm">
                         </div>
-                        <div class="flex gap-1 lg:col-span-7 justify-end mt-2">
+                        <div class="flex gap-1 lg:col-span-6 justify-end mt-2">
                             <button id="btn-save-bus" onclick="saveBooking('bus')" class="w-full sm:w-48 bg-blue-600 text-white py-2.5 rounded-lg font-bold hover:bg-blue-700 transition text-[10px] uppercase tracking-widest shadow-md">Buchen</button>
                             <button id="btn-cancel-bus" onclick="resetForm('bus')" class="hidden bg-slate-400 text-white px-4 rounded-lg font-bold hover:bg-slate-500 transition"><i class="fas fa-times"></i></button>
                         </div>
@@ -174,7 +159,7 @@
                 <section class="bg-orange-50 p-4 md:p-5 rounded-xl border border-orange-200 shadow-sm">
                     <h2 class="text-[10px] font-black mb-4 uppercase tracking-[0.2em] text-orange-600"><i class="fas fa-car mr-2 icon-pkw-yellow"></i><span id="pkw-form-title">PKW buchen</span></h2>
                     <input type="hidden" id="edit-pkw-id">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3 items-end">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
                         <div class="flex flex-col gap-1">
                             <label class="text-[9px] font-bold text-orange-400 uppercase">Fahrzeug</label>
                             <select id="pkw-select" class="p-2.5 border border-orange-200 rounded-lg outline-none w-full bg-white font-bold text-sm"></select>
@@ -186,16 +171,8 @@
                         <div class="flex flex-col gap-1">
                             <label class="text-[9px] font-bold text-orange-400 uppercase">Zeitraum</label>
                             <div class="flex items-center gap-1">
-                                <input type="time" id="pkw-start" onchange="calculateDuration('pkw')" class="p-2 border border-orange-200 rounded-lg w-full bg-white text-sm">
-                                <input type="time" id="pkw-end" onchange="calculateDuration('pkw')" class="p-2 border border-orange-200 rounded-lg w-full bg-white text-sm">
-                            </div>
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <label class="text-[9px] font-bold text-orange-400 uppercase">Dauer (Minuten)</label>
-                            <div class="flex items-center border border-orange-200 rounded-lg bg-white overflow-hidden">
-                                <input type="number" id="pkw-duration" value="90" onchange="calculateEndTime('pkw')" class="p-2 w-full text-sm outline-none font-bold text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
-                                <button onclick="adjustDuration('pkw', 15)" class="px-3 py-2 bg-slate-50 border-l hover:bg-slate-100 font-bold text-slate-600">+</button>
-                                <button onclick="adjustDuration('pkw', -15)" class="px-3 py-2 bg-slate-50 border-l hover:bg-slate-100 font-bold text-slate-600">-</button>
+                                <input type="time" id="pkw-start" class="p-2 border border-orange-200 rounded-lg w-full bg-white text-sm">
+                                <input type="time" id="pkw-end" class="p-2 border border-orange-200 rounded-lg w-full bg-white text-sm">
                             </div>
                         </div>
                         <div class="flex flex-col gap-1">
@@ -303,57 +280,6 @@
             }
         };
 
-        // NEU: Umschalten der Passwort-Sichtbarkeit im Login
-        function togglePasswordVisibility() {
-            const passwordInput = document.getElementById('login-pass');
-            const toggleIcon = document.getElementById('password-toggle-icon');
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
-            }
-        }
-
-        // NEU: Berechnet die Dauer in Minuten basierend auf Von/Bis Zeiten
-        function calculateDuration(type) {
-            const startVal = document.getElementById(`${type}-start`).value;
-            const endVal = document.getElementById(`${type}-end`).value;
-            if (startVal && endVal) {
-                const [startH, startM] = startVal.split(':').map(Number);
-                const [endH, endM] = endVal.split(':').map(Number);
-                const totalMinutes = (endH * 60 + endM) - (startH * 60 + startM);
-                if (totalMinutes > 0) {
-                    document.getElementById(`${type}-duration`).value = totalMinutes;
-                }
-            }
-        }
-
-        // NEU: Passt die Endzeit an, wenn sich das Minuten-Feld ändert
-        function calculateEndTime(type) {
-            const startVal = document.getElementById(`${type}-start`).value;
-            const durationVal = parseInt(document.getElementById(`${type}-duration`).value) || 0;
-            if (startVal && durationVal > 0) {
-                const [startH, startM] = startVal.split(':').map(Number);
-                let totalMinutes = startH * 60 + startM + durationVal;
-                let endH = Math.floor(totalMinutes / 60) % 24;
-                let endM = totalMinutes % 60;
-                document.getElementById(`${type}-end`).value = 
-                    String(endH).padStart(2, '0') + ':' + String(endM).padStart(2, '0');
-            }
-        }
-
-        // NEU: Erhöht/Verringert die Dauer per Plus/Minus-Buttons um X Minuten
-        function adjustDuration(type, amount) {
-            let current = parseInt(document.getElementById(`${type}-duration`).value) || 0;
-            current = Math.max(0, current + amount);
-            document.getElementById(`${type}-duration`).value = current;
-            calculateEndTime(type);
-        }
-
         function handleLogin() {
             const u = document.getElementById('login-user').value.trim();
             const p = document.getElementById('login-pass').value.trim();
@@ -381,6 +307,7 @@
                 vehicles = Object.values(data.vehicles || {});
                 archive = Object.values(data.archive || {});
                 
+                // --- GEÄNDERT: Schaltet den Login-Button frei, sobald Firebase-Daten vollständig geladen sind ---
                 const loginBtn = document.getElementById('btn-login-submit');
                 if (loginBtn) {
                     loginBtn.disabled = false;
@@ -399,6 +326,7 @@
         }
 
         function renderAll() {
+            // Bus-Liste rendern
             busBookings.sort((a,b) => new Date(a.date) - new Date(b.date));
             document.getElementById('bus-list').innerHTML = busBookings.map(b => `
                 <tr>
@@ -415,6 +343,7 @@
                     </td>
                 </tr>`).join('');
 
+            // PKW-Liste rendern
             pkwBookings.sort((a,b) => new Date(a.date) - new Date(b.date));
             document.getElementById('pkw-list').innerHTML = pkwBookings.map(b => `
                 <tr>
@@ -431,6 +360,7 @@
                     </td>
                 </tr>`).join('');
 
+            // Dropdowns & Selects befüllen
             document.getElementById('pkw-select').innerHTML = vehicles.map(v => `<option value="${v.id}">${v.model} (${v.plate})</option>`).join('');
             const userOptions = users.map(u => `<option value="${u.name}" ${u.name === currentUser.name ? 'selected' : ''}>${u.name}</option>`).join('');
             document.getElementById('pkw-for-user').innerHTML = userOptions;
@@ -449,6 +379,7 @@
             }
         }
 
+        // --- Buchungs-Logik (Erstellen & Bearbeiten) ---
         function saveBooking(type) {
             const id = document.getElementById(`edit-${type}-id`).value;
             const date = document.getElementById(`${type}-date`).value, start = document.getElementById(`${type}-start`).value, end = document.getElementById(`${type}-end`).value;
@@ -506,12 +437,9 @@
                 document.getElementById('pkw-select').value = b.vehicleId;
             }
             
-            // Berechnet die Dauer direkt beim Bearbeiten eines bestehenden Eintrags
-            calculateDuration(type);
-            
             document.getElementById(`${type}-form-title`).innerText = "Termin ändern";
             document.getElementById(`btn-save-${type}`).innerText = "Speichern";
-            document.getElementById(`btn-cancel-${type`).classList.remove('hidden');
+            document.getElementById(`btn-cancel-${type}`).classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -522,12 +450,12 @@
             document.getElementById(`${type}-end`).value = "";
             document.getElementById(`${type}-reason`).value = "";
             document.getElementById(`${type}-for-user`).value = currentUser.name;
-            document.getElementById(`${type}-duration`).value = "90";
             document.getElementById(`${type}-form-title`).innerText = type === 'bus' ? "Bus reservieren" : "PKW buchen";
             document.getElementById(`btn-save-${type}`).innerText = type === 'bus' ? "Buchen" : "Reservieren";
             document.getElementById(`btn-cancel-${type}`).classList.add('hidden');
         }
 
+        // --- Konflikt-Management & Fahrzeug-Wechsel ---
         function showConflictModal(conflict, date, start, end) {
             document.getElementById('conflict-modal-text').innerHTML = `Das Fahrzeug <b>${conflict.vehicle}</b> ist am ${new Date(date).toLocaleDateString('de-DE')} von <b>${conflict.start} bis ${conflict.end} Uhr</b> bereits besetzt durch: <b>${conflict.person}</b>.`;
             
@@ -562,6 +490,7 @@
             document.getElementById('conflict-modal').classList.remove('flex');
         }
 
+        // --- Archiv Logik ---
         function archiveEntry(path, id) {
             if(!confirm("Eintrag ins Archiv verschieben?")) return;
             const bList = path === 'busBookings' ? busBookings : pkwBookings;
@@ -608,6 +537,7 @@
             const busArchive = archive.filter(x => !x.type || x.type === 'bus');
             const pkwArchive = archive.filter(x => x.type === 'pkw');
 
+            // Bus Archiv HTML befüllen
             document.getElementById('bus-archive-list').innerHTML = busArchive.map(b => `
                 <tr class="bg-white/50">
                     <td data-label="Objekt" class="p-2 font-bold text-slate-700">${b.vehicle}</td>
@@ -622,6 +552,7 @@
                     </td>
                 </tr>`).join('');
 
+            // PKW Archiv HTML befüllen
             document.getElementById('pkw-archive-list').innerHTML = pkwArchive.map(b => `
                 <tr class="bg-white/50">
                     <td data-label="Fahrzeug" class="p-2 font-bold text-slate-700">${b.vehicle} <span class="text-[9px] text-slate-400 font-normal">(${b.plate || '-'})</span></td>
@@ -637,6 +568,7 @@
                 </tr>`).join('');
         }
 
+        // --- Fuhrpark- & Benutzerverwaltung ---
         function addVehicle() {
             const m = document.getElementById('pkw-model').value, p = document.getElementById('pkw-plate').value;
             if(!m || !p) return;
