@@ -4,10 +4,154 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fit-for-Drive Manager | Bus & PKW Automatik</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com">
+function updateDuration() {
+    const start = document.getElementById('pkw-start');
+    const end = document.getElementById('pkw-end');
+    const duration = document.getElementById('pkw-duration');
+    if(start && end && duration && start.value && end.value){
+        const diff = (new Date('1970-01-01T'+end.value) - new Date('1970-01-01T'+start.value))/60000;
+        duration.value = diff > 0 ? diff : 0;
+    }
+}
+
+function togglePassword() {
+    const input = document.getElementById('login-pass');
+    const eye = document.getElementById('password-eye');
+    if(input.type === 'password'){
+        input.type = 'text';
+        eye.className = 'fas fa-eye-slash';
+    } else {
+        input.type = 'password';
+        eye.className = 'fas fa-eye';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    
+    const bs = document.getElementById('bus-start');
+    const be = document.getElementById('bus-end');
+    if(bs) bs.addEventListener('input', () => {
+        const d=document.getElementById('bus-duration');
+        if(bs.value && be.value){
+            const diff=(new Date('1970-01-01T'+be.value)-new Date('1970-01-01T'+bs.value))/60000;
+            d.value=diff>0?diff:0;
+        }
+    });
+    if(be) be.addEventListener('input', () => {
+        const d=document.getElementById('bus-duration');
+        if(bs.value && be.value){
+            const diff=(new Date('1970-01-01T'+be.value)-new Date('1970-01-01T'+bs.value))/60000;
+            d.value=diff>0?diff:0;
+        }
+    });
+
+    const s = document.getElementById('pkw-start');
+    const e = document.getElementById('pkw-end');
+    if(s) s.addEventListener('input', updateDuration);
+    if(e) e.addEventListener('input', updateDuration);
+});
+
+</script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js">
+function updateDuration() {
+    const start = document.getElementById('pkw-start');
+    const end = document.getElementById('pkw-end');
+    const duration = document.getElementById('pkw-duration');
+    if(start && end && duration && start.value && end.value){
+        const diff = (new Date('1970-01-01T'+end.value) - new Date('1970-01-01T'+start.value))/60000;
+        duration.value = diff > 0 ? diff : 0;
+    }
+}
+
+function togglePassword() {
+    const input = document.getElementById('login-pass');
+    const eye = document.getElementById('password-eye');
+    if(input.type === 'password'){
+        input.type = 'text';
+        eye.className = 'fas fa-eye-slash';
+    } else {
+        input.type = 'password';
+        eye.className = 'fas fa-eye';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    
+    const bs = document.getElementById('bus-start');
+    const be = document.getElementById('bus-end');
+    if(bs) bs.addEventListener('input', () => {
+        const d=document.getElementById('bus-duration');
+        if(bs.value && be.value){
+            const diff=(new Date('1970-01-01T'+be.value)-new Date('1970-01-01T'+bs.value))/60000;
+            d.value=diff>0?diff:0;
+        }
+    });
+    if(be) be.addEventListener('input', () => {
+        const d=document.getElementById('bus-duration');
+        if(bs.value && be.value){
+            const diff=(new Date('1970-01-01T'+be.value)-new Date('1970-01-01T'+bs.value))/60000;
+            d.value=diff>0?diff:0;
+        }
+    });
+
+    const s = document.getElementById('pkw-start');
+    const e = document.getElementById('pkw-end');
+    if(s) s.addEventListener('input', updateDuration);
+    if(e) e.addEventListener('input', updateDuration);
+});
+
+</script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js">
+function updateDuration() {
+    const start = document.getElementById('pkw-start');
+    const end = document.getElementById('pkw-end');
+    const duration = document.getElementById('pkw-duration');
+    if(start && end && duration && start.value && end.value){
+        const diff = (new Date('1970-01-01T'+end.value) - new Date('1970-01-01T'+start.value))/60000;
+        duration.value = diff > 0 ? diff : 0;
+    }
+}
+
+function togglePassword() {
+    const input = document.getElementById('login-pass');
+    const eye = document.getElementById('password-eye');
+    if(input.type === 'password'){
+        input.type = 'text';
+        eye.className = 'fas fa-eye-slash';
+    } else {
+        input.type = 'password';
+        eye.className = 'fas fa-eye';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    
+    const bs = document.getElementById('bus-start');
+    const be = document.getElementById('bus-end');
+    if(bs) bs.addEventListener('input', () => {
+        const d=document.getElementById('bus-duration');
+        if(bs.value && be.value){
+            const diff=(new Date('1970-01-01T'+be.value)-new Date('1970-01-01T'+bs.value))/60000;
+            d.value=diff>0?diff:0;
+        }
+    });
+    if(be) be.addEventListener('input', () => {
+        const d=document.getElementById('bus-duration');
+        if(bs.value && be.value){
+            const diff=(new Date('1970-01-01T'+be.value)-new Date('1970-01-01T'+bs.value))/60000;
+            d.value=diff>0?diff:0;
+        }
+    });
+
+    const s = document.getElementById('pkw-start');
+    const e = document.getElementById('pkw-end');
+    if(s) s.addEventListener('input', updateDuration);
+    if(e) e.addEventListener('input', updateDuration);
+});
+
+</script>
     <style>
         .bg-corp-blue { background-color: #1e3a8a; }
         .time-badge-green { @apply bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded font-bold text-[10px]; }
@@ -55,7 +199,12 @@
             </div>
             <div class="space-y-4">
                 <input type="text" id="login-user" placeholder="Benutzername" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-600 text-base">
-                <input type="password" id="login-pass" placeholder="Passwort" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-600 text-base">
+                <div class="relative">
+<input type="password" id="login-pass" placeholder="Passwort" class="w-full p-3 pr-12 border rounded-xl outline-none focus:ring-2 focus:ring-blue-600 text-base">
+<button type="button" onclick="togglePassword()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">
+<i id="password-eye" class="fas fa-eye"></i>
+</button>
+</div>
                 <div class="flex items-center gap-2 px-1">
                     <input type="checkbox" id="remember-me" class="w-4 h-4 cursor-pointer">
                     <label for="remember-me" class="text-[10px] text-slate-500 uppercase font-bold tracking-wider cursor-pointer">Passwort speichern?</label>
@@ -99,7 +248,6 @@
                             <label class="text-[9px] font-bold text-blue-400 uppercase">Bus / Objekt</label>
                             <select id="bus-select" class="p-2.5 border border-blue-200 rounded-lg outline-none w-full bg-white font-bold text-sm">
                                 <option value="Bus mit Anhänger">Bus mit Anhänger</option>
-                                <option value="Bus">Bus</option>
                                 <option value="Anhänger">Anhänger</option>
                             </select>
                         </div>
@@ -113,6 +261,10 @@
                                 <input type="time" id="bus-start" class="p-2 border border-blue-200 rounded-lg w-full bg-white text-sm">
                                 <input type="time" id="bus-end" class="p-2 border border-blue-200 rounded-lg w-full bg-white text-sm">
                             </div>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[9px] font-bold text-blue-400 uppercase">Dauer (Minuten)</label>
+                            <input type="number" id="bus-duration" readonly class="p-2.5 border border-blue-200 rounded-lg bg-slate-100 text-sm font-bold">
                         </div>
                         <div class="flex flex-col gap-1">
                             <label class="text-[9px] font-bold text-blue-400 uppercase">Fahrer (Person)</label>
@@ -175,6 +327,10 @@
                                 <input type="time" id="pkw-start" class="p-2 border border-orange-200 rounded-lg w-full bg-white text-sm">
                                 <input type="time" id="pkw-end" class="p-2 border border-orange-200 rounded-lg w-full bg-white text-sm">
                             </div>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[9px] font-bold text-orange-400 uppercase">Dauer (Minuten)</label>
+                            <input type="number" id="pkw-duration" readonly class="p-2.5 border border-orange-200 rounded-lg bg-slate-100 text-sm font-bold">
                         </div>
                         <div class="flex flex-col gap-1">
                             <label class="text-[9px] font-bold text-orange-400 uppercase">Fahrer (Person)</label>
@@ -335,7 +491,7 @@
                     <td data-label="Datum" class="p-3 font-bold">${new Date(b.date).toLocaleDateString('de-DE')}</td>
                     <td data-label="Zeit" class="p-3"><span class="time-badge-green">${b.start} - ${b.end}</span></td>
                     <td data-label="Person" class="p-3 font-bold text-blue-600 uppercase text-[9px]">${b.person}</td>
-                    <td data-label="Zweck" class="p-3 text-slate-500">${b.reason || '-'}</td>
+                    <td data-label="Zweck" class="p-3 text-slate-500">${b.reason || '-'}<div class="text-[9px] text-orange-500 font-bold">Dauer: ${b.duration || 0} Min.</div></td>
                     <td class="p-3 text-right">
                         <div class="flex justify-end gap-2">
                             <button onclick="editBooking('bus', ${b.id})" class="text-slate-400 hover:text-blue-600 p-1"><i class="fas fa-edit"></i></button>
@@ -352,7 +508,7 @@
                     <td data-label="Datum" class="p-3 font-bold">${new Date(b.date).toLocaleDateString('de-DE')}</td>
                     <td data-label="Zeit" class="p-3"><span class="time-badge-blue">${b.start} - ${b.end}</span></td>
                     <td data-label="Person" class="p-3 font-bold uppercase text-[9px] text-slate-600">${b.person}</td>
-                    <td data-label="Zweck" class="p-3 text-slate-500">${b.reason || '-'}</td>
+                    <td data-label="Zweck" class="p-3 text-slate-500">${b.reason || '-'}<div class="text-[9px] text-blue-500 font-bold">Dauer: ${b.duration || 0} Min.</div></td>
                     <td class="p-3 text-right">
                         <div class="flex justify-end gap-2">
                             <button onclick="editBooking('pkw', ${b.id})" class="text-slate-400 hover:text-blue-600 p-1"><i class="fas fa-edit"></i></button>
@@ -388,7 +544,8 @@
             if(!date || !start || !end) return alert("Fehlende Daten!");
             if(start >= end) return alert("Endzeit ungültig!");
             
-            let bookingData = { id: id ? parseInt(id) : Date.now(), date, start, end, type: type };
+            const duration = Math.round((new Date(`1970-01-01T${end}`) - new Date(`1970-01-01T${start}`)) / 60000);
+            let bookingData = { id: id ? parseInt(id) : Date.now(), date, start, end, duration, type: type };
             let list = (type === 'bus') ? busBookings : pkwBookings;
             
             if(type === 'bus') {
@@ -633,6 +790,54 @@
         }
 
         function deleteEntry(path, id) { if(confirm("Löschen?")) db.ref(`${path}/${id}`).remove(); }
-    </script>
+    
+function updateDuration() {
+    const start = document.getElementById('pkw-start');
+    const end = document.getElementById('pkw-end');
+    const duration = document.getElementById('pkw-duration');
+    if(start && end && duration && start.value && end.value){
+        const diff = (new Date('1970-01-01T'+end.value) - new Date('1970-01-01T'+start.value))/60000;
+        duration.value = diff > 0 ? diff : 0;
+    }
+}
+
+function togglePassword() {
+    const input = document.getElementById('login-pass');
+    const eye = document.getElementById('password-eye');
+    if(input.type === 'password'){
+        input.type = 'text';
+        eye.className = 'fas fa-eye-slash';
+    } else {
+        input.type = 'password';
+        eye.className = 'fas fa-eye';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    
+    const bs = document.getElementById('bus-start');
+    const be = document.getElementById('bus-end');
+    if(bs) bs.addEventListener('input', () => {
+        const d=document.getElementById('bus-duration');
+        if(bs.value && be.value){
+            const diff=(new Date('1970-01-01T'+be.value)-new Date('1970-01-01T'+bs.value))/60000;
+            d.value=diff>0?diff:0;
+        }
+    });
+    if(be) be.addEventListener('input', () => {
+        const d=document.getElementById('bus-duration');
+        if(bs.value && be.value){
+            const diff=(new Date('1970-01-01T'+be.value)-new Date('1970-01-01T'+bs.value))/60000;
+            d.value=diff>0?diff:0;
+        }
+    });
+
+    const s = document.getElementById('pkw-start');
+    const e = document.getElementById('pkw-end');
+    if(s) s.addEventListener('input', updateDuration);
+    if(e) e.addEventListener('input', updateDuration);
+});
+
+</script>
 </body>
 </html>
