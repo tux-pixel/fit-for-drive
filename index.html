@@ -52,6 +52,42 @@ document.addEventListener('DOMContentLoaded', () => {
     if(e) e.addEventListener('input', updateDuration);
 });
 
+
+function updateDashboard(){
+ if(document.getElementById('stat-pkw')) document.getElementById('stat-pkw').innerText=pkwBookings.length;
+ if(document.getElementById('stat-bus')) document.getElementById('stat-bus').innerText=busBookings.length;
+ if(document.getElementById('stat-vehicles')) document.getElementById('stat-vehicles').innerText=vehicles.length;
+ const today=new Date().toISOString().split('T')[0];
+ const count=[...pkwBookings,...busBookings].filter(x=>x.date===today).length;
+ if(document.getElementById('stat-today')) document.getElementById('stat-today').innerText=count;
+}
+
+document.addEventListener('input',function(e){
+ if(e.target.id==='global-search'){
+   const q=e.target.value.toLowerCase();
+   document.querySelectorAll('#pkw-list tr,#bus-list tr').forEach(r=>{
+      r.style.display=r.innerText.toLowerCase().includes(q)?'':'none';
+   });
+ }
+});
+
+function setQuickDuration(mins,type){
+ const start=document.getElementById(type+'-start');
+ const end=document.getElementById(type+'-end');
+ if(!start || !start.value) return;
+ const d=new Date('1970-01-01T'+start.value);
+ d.setMinutes(d.getMinutes()+mins);
+ end.value=d.toTimeString().slice(0,5);
+ if(typeof updateDuration==='function') updateDuration();
+}
+
+const oldRenderAll=renderAll;
+renderAll=function(){
+ oldRenderAll();
+ updateDashboard();
+};
+
+
 </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js">
@@ -102,6 +138,42 @@ document.addEventListener('DOMContentLoaded', () => {
     if(e) e.addEventListener('input', updateDuration);
 });
 
+
+function updateDashboard(){
+ if(document.getElementById('stat-pkw')) document.getElementById('stat-pkw').innerText=pkwBookings.length;
+ if(document.getElementById('stat-bus')) document.getElementById('stat-bus').innerText=busBookings.length;
+ if(document.getElementById('stat-vehicles')) document.getElementById('stat-vehicles').innerText=vehicles.length;
+ const today=new Date().toISOString().split('T')[0];
+ const count=[...pkwBookings,...busBookings].filter(x=>x.date===today).length;
+ if(document.getElementById('stat-today')) document.getElementById('stat-today').innerText=count;
+}
+
+document.addEventListener('input',function(e){
+ if(e.target.id==='global-search'){
+   const q=e.target.value.toLowerCase();
+   document.querySelectorAll('#pkw-list tr,#bus-list tr').forEach(r=>{
+      r.style.display=r.innerText.toLowerCase().includes(q)?'':'none';
+   });
+ }
+});
+
+function setQuickDuration(mins,type){
+ const start=document.getElementById(type+'-start');
+ const end=document.getElementById(type+'-end');
+ if(!start || !start.value) return;
+ const d=new Date('1970-01-01T'+start.value);
+ d.setMinutes(d.getMinutes()+mins);
+ end.value=d.toTimeString().slice(0,5);
+ if(typeof updateDuration==='function') updateDuration();
+}
+
+const oldRenderAll=renderAll;
+renderAll=function(){
+ oldRenderAll();
+ updateDashboard();
+};
+
+
 </script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js">
 function updateDuration() {
@@ -151,6 +223,42 @@ document.addEventListener('DOMContentLoaded', () => {
     if(e) e.addEventListener('input', updateDuration);
 });
 
+
+function updateDashboard(){
+ if(document.getElementById('stat-pkw')) document.getElementById('stat-pkw').innerText=pkwBookings.length;
+ if(document.getElementById('stat-bus')) document.getElementById('stat-bus').innerText=busBookings.length;
+ if(document.getElementById('stat-vehicles')) document.getElementById('stat-vehicles').innerText=vehicles.length;
+ const today=new Date().toISOString().split('T')[0];
+ const count=[...pkwBookings,...busBookings].filter(x=>x.date===today).length;
+ if(document.getElementById('stat-today')) document.getElementById('stat-today').innerText=count;
+}
+
+document.addEventListener('input',function(e){
+ if(e.target.id==='global-search'){
+   const q=e.target.value.toLowerCase();
+   document.querySelectorAll('#pkw-list tr,#bus-list tr').forEach(r=>{
+      r.style.display=r.innerText.toLowerCase().includes(q)?'':'none';
+   });
+ }
+});
+
+function setQuickDuration(mins,type){
+ const start=document.getElementById(type+'-start');
+ const end=document.getElementById(type+'-end');
+ if(!start || !start.value) return;
+ const d=new Date('1970-01-01T'+start.value);
+ d.setMinutes(d.getMinutes()+mins);
+ end.value=d.toTimeString().slice(0,5);
+ if(typeof updateDuration==='function') updateDuration();
+}
+
+const oldRenderAll=renderAll;
+renderAll=function(){
+ oldRenderAll();
+ updateDashboard();
+};
+
+
 </script>
     <style>
         .bg-corp-blue { background-color: #1e3a8a; }
@@ -171,6 +279,14 @@ document.addEventListener('DOMContentLoaded', () => {
         .icon-bus-white { color: #ffffff; }
         .icon-pkw-yellow { color: #facc15; }
     </style>
+
+<style>
+.dashboard-card{padding:.75rem;border:1px solid #e5e7eb;border-radius:.75rem;background:white}
+.quick-btn{padding:.4rem .6rem;border:1px solid #cbd5e1;border-radius:.5rem;font-size:11px}
+.vehicle-status-free{color:green;font-weight:bold}
+.vehicle-status-blocked{color:red;font-weight:bold}
+</style>
+
 </head>
 <body class="bg-slate-50 font-sans text-slate-900 text-xs md:text-sm">
 
@@ -238,6 +354,16 @@ document.addEventListener('DOMContentLoaded', () => {
         </header>
 
         <main class="flex-1 p-3 md:p-6 max-w-6xl mx-auto w-full space-y-6">
+<section id="dashboard-mini" class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-4">
+<h2 class="font-bold mb-2">Dashboard</h2>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+<div class="dashboard-card">🚗 PKW-Termine: <span id="stat-pkw">0</span></div>
+<div class="dashboard-card">🚌 Bus-Termine: <span id="stat-bus">0</span></div>
+<div class="dashboard-card">📅 Heute: <span id="stat-today">0</span></div>
+<div class="dashboard-card">🚘 Fahrzeuge: <span id="stat-vehicles">0</span></div>
+</div>
+</section>
+
             
             <div id="view-bus" class="space-y-6">
                 <section class="bg-blue-50/50 p-4 md:p-5 rounded-xl border border-blue-100 shadow-sm">
@@ -281,7 +407,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </section>
                 
-                <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                
+<div class="mb-3">
+<input id="global-search" placeholder="🔍 Fahrer, Fahrzeug oder Kennzeichen suchen..." class="w-full p-2 border rounded-lg">
+</div>
+<section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                     <div class="bg-emerald-600 px-4 py-2 text-white text-[10px] font-black uppercase">Aktuelle Bus-Termine</div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left responsive-table">
@@ -837,6 +967,42 @@ document.addEventListener('DOMContentLoaded', () => {
     if(s) s.addEventListener('input', updateDuration);
     if(e) e.addEventListener('input', updateDuration);
 });
+
+
+function updateDashboard(){
+ if(document.getElementById('stat-pkw')) document.getElementById('stat-pkw').innerText=pkwBookings.length;
+ if(document.getElementById('stat-bus')) document.getElementById('stat-bus').innerText=busBookings.length;
+ if(document.getElementById('stat-vehicles')) document.getElementById('stat-vehicles').innerText=vehicles.length;
+ const today=new Date().toISOString().split('T')[0];
+ const count=[...pkwBookings,...busBookings].filter(x=>x.date===today).length;
+ if(document.getElementById('stat-today')) document.getElementById('stat-today').innerText=count;
+}
+
+document.addEventListener('input',function(e){
+ if(e.target.id==='global-search'){
+   const q=e.target.value.toLowerCase();
+   document.querySelectorAll('#pkw-list tr,#bus-list tr').forEach(r=>{
+      r.style.display=r.innerText.toLowerCase().includes(q)?'':'none';
+   });
+ }
+});
+
+function setQuickDuration(mins,type){
+ const start=document.getElementById(type+'-start');
+ const end=document.getElementById(type+'-end');
+ if(!start || !start.value) return;
+ const d=new Date('1970-01-01T'+start.value);
+ d.setMinutes(d.getMinutes()+mins);
+ end.value=d.toTimeString().slice(0,5);
+ if(typeof updateDuration==='function') updateDuration();
+}
+
+const oldRenderAll=renderAll;
+renderAll=function(){
+ oldRenderAll();
+ updateDashboard();
+};
+
 
 </script>
 </body>
